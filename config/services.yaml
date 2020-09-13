@@ -13,7 +13,7 @@ services:
 
         bind:
             $githubId: '%env(resolve:GITHUB_ID)%'
-            #$githubSecret: '%env(resolve:GITHUB_SECRET)%'
+            $githubSecret: '%env(resolve:GITHUB_SECRET)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:

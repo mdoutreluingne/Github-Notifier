@@ -50,9 +50,13 @@ class User implements UserInterface
      */
     private $logs;
 
-    public function __construct()
+    private $avatar;
+
+    public function __construct(array $data = [])
     {
         $this->logs = new ArrayCollection();
+        $this->username = $data['login'];
+        $this->avatar = $data['avatar_url'];
     }
 
     public function getId(): ?int
@@ -77,8 +81,9 @@ class User implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
 
-        return array($roles);
+        return array_unique($roles);
     }
 
     public function setRoles(array $roles): self
@@ -190,4 +195,13 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * Get the value of avatar
+     */ 
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+
 }

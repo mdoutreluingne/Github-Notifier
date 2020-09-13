@@ -41,6 +41,6 @@ class LoginController extends AbstractController
      */
     public function dashboard()
     {
-        new Response("<body><h1>Hello</h1></body>");
+        return $this->render('login/dashboard.html.twig');
     }
 }
