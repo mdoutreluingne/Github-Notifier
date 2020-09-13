@@ -29,3 +29,17 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    doctrine.doctrineSubscriber:
+        class: App\EventListener\DoctrineSubscriber
+        tags:
+            - { name: 'doctrine.event_subscriber' }
+    
+    dbHandler:
+        class: App\Service\DbHandler
+
+    dbProcessor:
+        class: App\Service\DbProcessor
+        tags: 
+            - { name: monolog.processor, handler: dbHandler}
+
