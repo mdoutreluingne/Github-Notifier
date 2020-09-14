@@ -4,13 +4,13 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\GithubUserProvider;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class GithubAuthenticator extends AbstractGuardAuthenticator
 {
@@ -36,7 +36,9 @@ class GithubAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         //Logique => GET USER FROM GITHUB
+
         return $this->provider->loadUserFromGithub($credentials['code']);
+        
     }
 
     public function checkCredentials($credentials, UserInterface $user)

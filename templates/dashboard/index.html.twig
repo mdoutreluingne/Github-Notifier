@@ -12,6 +12,8 @@
     <h1>My repositories</h1>
 
     <div class="jumbotron">
+        <h1>Welcome {{ app.user.username }}</h1>
+        <img src="{{ app.user.avatar }}" alt="">
         <div class="container">
             {{ form_start(form) }}
                 {{ form_widget(form) }}
@@ -25,7 +27,7 @@
         {% for repo in repos %}
             <li>Name : {{repo.name}}</li>
             <li>Description : {{repo.description ?? 'No description'}}</li>
-            <li><a href="{{ path('show', {id:repo.id}) }}">Détails</a> || <a href="https://github.com/mdoutreluingne/{{repo.name}}">Voir sur github</a></li>
+            <li><a href="{{ path('dashboard_show', {id:repo.id}) }}">Détails</a> || <a href="https://github.com/{{ app.user.username }}/{{repo.name}}">Voir sur github</a></li>
             <br>
         {% endfor %}
     </ul>

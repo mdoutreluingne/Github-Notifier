@@ -32,15 +32,8 @@ class LoginController extends AbstractController
      */
     public function github(UrlGeneratorInterface $generator)
     {
-        $url = $generator->generate("dashboard", [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = $generator->generate("dashboard", [], UrlGeneratorInterface::ABSOLUTE_URL); //Redirige vers l'url dashboard
         return new RedirectResponse("https://github.com/login/oauth/authorize?client_id=$this->githubId&redirect_uri=".$url);
     }
 
-    /**
-     * @Route("/dashboard", name="dashboard")
-     */
-    public function dashboard()
-    {
-        return $this->render('login/dashboard.html.twig');
-    }
 }

@@ -1,7 +1,7 @@
 <?php 
 namespace App\Service;
 
-use App\Entity\User;
+use App\Security\User;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GithubUserProvider
@@ -9,12 +9,15 @@ class GithubUserProvider
     private $githubId;
     private $githubSecret;
     private $httpClient;
+    public $username;
+    private $token;
 
-    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient)
+    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, string $username=null)
     {
         $this->githubId = $githubId;
         $this->githubSecret = $githubSecret;
         $this->httpClient = $httpClient;
+        $this->username = $username;
     }
 
     public function loadUserFromGithub(string $code)
@@ -29,7 +32,7 @@ class GithubUserProvider
         ]);
 
         $token = $response->toArray()['access_token'];
-        //Gere erreur si le token est introuvable alors return null
+        //Gere erreur si le token est introuvable alors return null puis leve exception
         //TODO 
 
         $response = $this->httpClient->request('GET', 'https://api.github.com/user', [
@@ -39,7 +42,8 @@ class GithubUserProvider
         ]);
 
         $data = $response->toArray();
-
+        $this->username = $data['login']; //Récupération du login github
+        
         return new User($data);
     }
 }

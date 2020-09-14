@@ -12,7 +12,15 @@
     <h1>Repository</h1>
 
             <h3>Name : {{repo.name}}</h3>
-            <p>Description : {{repo.description ? 'No description'}}</p>
+            <p>Description : {{repo.description}}</p>
+
+    <h1>Commits</h1>
+        {% for commit in commits %}
+            <p>Message : {{ commit.commit.message }}</p>
+            <p>Committer : {{ commit.commit.committer.name }}</p>
+  
+            <hr>
+        {% endfor %}
 
 </div>
 {% endblock %}

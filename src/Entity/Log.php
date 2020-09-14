@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\LogRepository;
+use App\Security\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -48,9 +49,6 @@ class Log
      */
     private $createdAt;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="logs")
-     */
     private $user;
 
     public function getId(): ?int
@@ -138,12 +136,13 @@ class Log
         $this->createdAt = new \DateTime();
     }
 
-    public function getUser(): ?User
+
+    public function getUser(): ?string
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?string $user): self
     {
         $this->user = $user;
 

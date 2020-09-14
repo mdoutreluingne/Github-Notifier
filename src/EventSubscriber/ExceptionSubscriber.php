@@ -5,9 +5,12 @@ namespace App\EventSubscriber;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ExceptionSubscriber implements EventSubscriberInterface
 {
@@ -32,17 +35,25 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
     public function processException(ExceptionEvent $event)
     {
-       //dd($event);
+        /*$exception = $event->getThrowable();
 
-       /*switch (true) {
-           case ($event->getThrowable()->getStatusCode() > 400 && $event->getThrowable()->getStatusCode() < 500):
-                $this->logger->error($event->getThrowable()->getMessage());
-               break;
+        $response = new Response();
 
-            case ($event->getThrowable()->getStatusCode() > 200 && $event->getThrowable()->getStatusCode() < 250):
-                $this->logger->info($event->getThrowable()->getMessage());
-                break;
-       }*/
+        // HttpExceptionInterface is a special type of exception that
+        // holds status code and header details
+        if ($exception instanceof HttpExceptionInterface) {
+            switch (true) {
+                case ($exception->getStatusCode() > 400 && $exception->getStatusCode() < 500):
+                    $this->logger->error($exception->getMessage());
+                    break;
+
+                case ($exception->getStatusCode() > 200 && $exception->getStatusCode() < 250):
+                    $this->logger->info($exception->getMessage());
+                    break;
+            }
+        } else {
+            $this->logger->info($exception->getMessage());
+        }*/
     }
 
     public function notifyException(ExceptionEvent $event)

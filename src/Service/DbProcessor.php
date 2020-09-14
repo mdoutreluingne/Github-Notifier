@@ -19,9 +19,8 @@ class DbProcessor
         //On modifie le record pour ajouter nos infos
         $record['extra']['clientIp'] = $this->request->getClientIp();
         $record['extra']['url'] = $this->request->getBaseUrl();
-
         $user = $this->security->getUser();
-        $record['extra']['user'] = $user;
+        $record['extra']['user'] = $user->getUsername();
 
         return $record;
     }
