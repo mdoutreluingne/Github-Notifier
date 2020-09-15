@@ -2,22 +2,29 @@
 
 namespace App\Controller;
 
+use App\Entity\Contact;
+use App\Form\ContactType;
 use App\Form\RepoSearchType;
 use App\Service\GithubUserProvider;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Notification\ContactNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Security;
 
 class DashboardController extends AbstractController
 {
     private $dataProvider;
+    private $manager;
 
-    public function __construct(GithubUserProvider $dataProvider)
+    public function __construct(GithubUserProvider $dataProvider, EntityManagerInterface $manager)
     {
         $this->dataProvider = $dataProvider;
+        $this->manager = $manager;
     }
 
     /**
@@ -48,19 +55,44 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard/show/{id}", name="dashboard_show")
      */
-    public function show($id, HttpClientInterface $httpClient)
+    public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
     {
         $response = $httpClient->request('GET', 'https://api.github.com/repositories/' . $id);
         $commit = $httpClient->request('GET', 'https://api.github.com/repos/'.$response->toArray()['full_name'].'/commits');
+        $lastChange = $httpClient->request('GET', 'https://api.github.com/repos/' . $response->toArray()['full_name'] . '/events');
 
-        //dd($commit->toArray());
+
+        //dd($lastChange->toArray());
 
         if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException(sprintf('No repo with id %s', $id));
+            throw new NotFoundHttpException(sprintf('No repository with id %s', $id));
         }
+
+        //Création de formulaire email notification
+        $contact = new Contact();
+        $contact->setUser($security->getUser()->getUsername());
+        $contact->setRepository($response->toArray()['name']);
+
+        $form = $this->createForm(ContactType::class, $contact);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            
+            $this->manager->persist($contact);
+            $this->manager->flush($contact);
+
+            $this->addFlash('success', 'Email enregistré');
+
+            return $this->redirectToRoute('dashboard_show', [
+                'id' => $id
+            ]);
+        }
+        
         return $this->render('dashboard/show.html.twig', [
             'repo' => $response->toArray(),
-            'commits' => $commit->toArray()
+            'commits' => $commit->toArray(),
+            'lastChanges' => $lastChange->toArray(),
+            'form' => $form->createView()
         ]);
     }
 }

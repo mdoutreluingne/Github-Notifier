@@ -10,14 +10,16 @@ class GithubUserProvider
     private $githubSecret;
     private $httpClient;
     public $username;
+    private $email;
     private $token;
 
-    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, string $username=null)
+    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, string $username=null, string $email=null)
     {
         $this->githubId = $githubId;
         $this->githubSecret = $githubSecret;
         $this->httpClient = $httpClient;
         $this->username = $username;
+        $this->email = $email;
     }
 
     public function loadUserFromGithub(string $code)
@@ -42,7 +44,9 @@ class GithubUserProvider
         ]);
 
         $data = $response->toArray();
+        //dd($data);
         $this->username = $data['login']; //Récupération du login github
+        $this->email = $data['login']; //Récupération de l'email du user github
         
         return new User($data);
     }
