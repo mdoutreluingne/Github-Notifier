@@ -5,9 +5,8 @@ namespace App\Controller;
 use App\Entity\Contact;
 use App\Form\ContactType;
 use App\Form\RepoSearchType;
-use App\Service\GithubUserProvider;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Notification\ContactNotification;
+use App\Security\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,12 +17,12 @@ use Symfony\Component\Security\Core\Security;
 
 class DashboardController extends AbstractController
 {
-    private $dataProvider;
+    private $user;
     private $manager;
 
-    public function __construct(GithubUserProvider $dataProvider, EntityManagerInterface $manager)
+    public function __construct(Security $user, EntityManagerInterface $manager)
     {
-        $this->dataProvider = $dataProvider;
+        $this->user = $user->getUser();
         $this->manager = $manager;
     }
 
@@ -32,7 +31,7 @@ class DashboardController extends AbstractController
      */
     public function index(HttpClientInterface $httpClient, Request $request)
     {
-        $response = $httpClient->request('GET', 'https://api.github.com/users/'. $this->dataProvider->username .'/repos', [
+        $response = $httpClient->request('GET', 'https://api.github.com/users/'. $this->user->getUsername() .'/repos', [
             'query' => [
                 'sort' => 'created',
             ],
@@ -55,7 +54,7 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard/show/{id}", name="dashboard_show")
      */
-    public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
+    public function show($id, HttpClientInterface $httpClient, Request $request)
     {
         $response = $httpClient->request('GET', 'https://api.github.com/repositories/' . $id);
         $commit = $httpClient->request('GET', 'https://api.github.com/repos/'.$response->toArray()['full_name'].'/commits');
@@ -70,7 +69,7 @@ class DashboardController extends AbstractController
 
         //Création de formulaire email notification
         $contact = new Contact();
-        $contact->setUser($security->getUser()->getUsername());
+        $contact->setUser($this->user->getUsername());
         $contact->setRepository($response->toArray()['name']);
 
         $form = $this->createForm(ContactType::class, $contact);

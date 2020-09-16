@@ -48,11 +48,17 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
         if (!$user instanceof User) {
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', get_class($user)));
         }
-
+        
         // Return a User object after making sure its data is "fresh".
         // Or throw a UsernameNotFoundException if the user no longer exists.
-        //throw new \Exception('TODO: fill in refreshUser() inside '.__FILE__);
-        return $user;
+        
+        //Compare user in session
+        if ($user->isEqualTo($user) == true) {
+            return $user;
+        }
+        else {
+            throw new \Exception('The user is wrong, please reconnect');
+        }
     }
 
     /**

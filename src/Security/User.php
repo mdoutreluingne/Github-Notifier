@@ -3,8 +3,9 @@
 namespace App\Security;
 
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 
-class User implements UserInterface
+class User implements UserInterface, EquatableInterface
 {
     private $username;
 
@@ -85,6 +86,23 @@ class User implements UserInterface
     public function getAvatar()
     {
         return $this->avatar;
+    }
+
+    //Comparaison manuelle des utilisateurs avec EquatableInterface en pour la méhtode refreshUser
+    public function isEqualTo(UserInterface $user)
+    {
+        if ($user instanceof User) {
+            // Check that the roles are the same, in any order
+            $isEqual = count($this->getRoles()) == count($user->getRoles());
+            if ($isEqual) {
+                foreach ($this->getRoles() as $role) {
+                    $isEqual = $isEqual && in_array($role, $user->getRoles());
+                }
+            }
+            return $isEqual;
+        }
+
+        return false;
     }
 
 }
