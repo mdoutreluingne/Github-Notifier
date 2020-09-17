@@ -1,7 +1,10 @@
 <?php 
 namespace App\Service;
 
+use App\Entity\User as EntityUser;
+use App\Repository\UserRepository;
 use App\Security\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GithubUserProvider
@@ -10,12 +13,16 @@ class GithubUserProvider
     private $githubSecret;
     private $httpClient;
     private $token;
+    private $em;
+    private $repository;
 
-    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient)
+    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, EntityManagerInterface $em, UserRepository $repository)
     {
         $this->githubId = $githubId;
         $this->githubSecret = $githubSecret;
         $this->httpClient = $httpClient;
+        $this->em = $em;
+        $this->repository = $repository;
     }
 
     public function loadUserFromGithub(string $code)
@@ -40,7 +47,17 @@ class GithubUserProvider
         ]);
 
         $data = $response->toArray();
-        //dd($data);
+        $userBdd = $this->repository->findOneByUsername($data['login']);
+
+        //Test si l'utilisateur éxiste déjà en bdd
+        if ($userBdd == null) {
+            $user = new EntityUser();
+            $user->setUsername($data['login']);
+            $user->setRoles(['ROLE_USER']);
+
+            $this->em->persist($user);
+            $this->em->flush($user);
+        }
         
         return new User($data);
     }
