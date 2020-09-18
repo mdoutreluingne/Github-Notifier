@@ -61,7 +61,7 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard/show/{id}", name="dashboard_show")
      */
-    public function show($id, HttpClientInterface $httpClient, Request $request, Security $security, GithubRepositoryProvider $githubRepositoryProvider)
+    public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
     {
         /*$event = new GithubRepositoryEvent($githubRepositoryProvider);
         return $this->json($event->getData());*/

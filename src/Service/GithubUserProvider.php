@@ -1,10 +1,14 @@
 <?php 
 namespace App\Service;
 
+use App\Security\User;
 use App\Entity\User as EntityUser;
 use App\Repository\UserRepository;
-use App\Security\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GithubUserProvider
@@ -12,7 +16,6 @@ class GithubUserProvider
     private $githubId;
     private $githubSecret;
     private $httpClient;
-    private $token;
     private $em;
     private $repository;
 
@@ -27,19 +30,45 @@ class GithubUserProvider
 
     public function loadUserFromGithub(string $code)
     {
-        $url = sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s",
-        $this->githubId, $this->githubSecret, $code);
+        $request = Request::createFromGlobals();
+         
+        //Si le cookie existe
+        if ($request->cookies->has('token')) {
+            $token = $request->cookies->get('token');
+        }
+        else {
 
-        $response = $this->httpClient->request('POST', $url, [
-            'headers' => [
-                'Accept' => "application/json"
-            ]
-        ]);
+            $url = sprintf(
+                "https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s",
+                $this->githubId,
+                $this->githubSecret,
+                $code
+            );
 
-        $token = $response->toArray()['access_token'];
+            //Appelle Oauth de github pour reçevoir l'access_token
+            $response = $this->httpClient->request('POST', $url, [
+                'headers' => [
+                    'Accept' => "application/json"
+                ]
+            ]);
+
+            //Initalisation de $token
+            $token = $response->toArray()['access_token'];
+
+            //Création du cookie
+            $res = new Response();
+            $cookie = Cookie::create('token')
+            ->withValue($response->toArray()['access_token'])
+            ->withExpires(strtotime("+7 hours"));
+
+            $res->headers->setCookie($cookie);
+            $res->send();
+        }
         //Gere erreur si le token est introuvable alors return null puis leve exception
         //TODO 
 
+
+        //Appelle l'api avec $token
         $response = $this->httpClient->request('GET', 'https://api.github.com/user', [
             'headers' => [
                 'Authorization' => "token ". $token
@@ -54,6 +83,7 @@ class GithubUserProvider
             $user = new EntityUser();
             $user->setUsername($data['login']);
             $user->setRoles(['ROLE_USER']);
+            $user->setToken($token);
 
             $this->em->persist($user);
             $this->em->flush($user);
