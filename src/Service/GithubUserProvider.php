@@ -64,9 +64,6 @@ class GithubUserProvider
             $res->headers->setCookie($cookie);
             $res->send();
         }
-        //Gere erreur si le token est introuvable alors return null puis leve exception
-        //TODO 
-
 
         //Appelle l'api avec $token
         $response = $this->httpClient->request('GET', 'https://api.github.com/user', [
@@ -83,7 +80,6 @@ class GithubUserProvider
             $user = new EntityUser();
             $user->setUsername($data['login']);
             $user->setRoles(['ROLE_USER']);
-            $user->setToken($token);
 
             $this->em->persist($user);
             $this->em->flush($user);

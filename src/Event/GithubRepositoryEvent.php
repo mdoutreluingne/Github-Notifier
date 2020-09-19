@@ -2,9 +2,7 @@
 
 namespace App\Event;
 
-use Acme\Store\Order;
 use App\Entity\Contact;
-use App\Service\GithubRepositoryProvider;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -15,31 +13,53 @@ class GithubRepositoryEvent extends Event
 {
     public const NAME = 'repository.event';
 
-    private $data;
+    private $contact;
+    private $lastEventRepository;
 
-    public function __construct(Contact $data)
+    public function __construct(Contact $contact, array $lastEventRepository)
     {
-        //$this->data = $data->callEventRepositoryFromGithub('mdoutreluingne/Github-notifier');
-        $this->data = $data;
+        $this->contact = $contact;
+        $this->lastEventRepository = $lastEventRepository;
     }
 
 
     /**
-     * Get the value of data
+     * Get the value of contact
      */ 
-    public function getData()
+    public function getContact()
     {
-        return $this->data;
+        return $this->contact;
     }
 
     /**
-     * Set the value of data
+     * Set the value of contact
      *
      * @return  self
      */ 
-    public function setData($data)
+    public function setContact($contact)
     {
-        $this->data = $data;
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of lastEventRepository
+     */ 
+    public function getLastEventRepository()
+    {
+        return $this->lastEventRepository;
+    }
+
+    /**
+     * Set the value of lastEventRepository
+     *
+     * @return  self
+     */ 
+    public function setLastEventRepository($lastEventRepository)
+    {
+        $this->lastEventRepository = $lastEventRepository;
 
         return $this;
     }

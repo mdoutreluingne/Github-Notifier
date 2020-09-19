@@ -2,12 +2,11 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\Mime\Email;
 use App\Event\GithubRepositoryEvent;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+
 
 class GithubRepositorySubscriber implements EventSubscriberInterface
 {
@@ -27,18 +26,27 @@ class GithubRepositorySubscriber implements EventSubscriberInterface
 
     public function onFilterApi(GithubRepositoryEvent $event)
     {
-        $data = $event->getData();
-        $event->setData($data);
+        //Récupération de l'oject contact
+        $dataContact = $event->getContact();
+        $event->setContact($dataContact);
 
-        $email = (new Email())
-            ->from('helsslo@example.com')
+        //Récupération des derniers event du repository
+        $dataEventRepository = $event->getLastEventRepository();
+        $event->setLastEventRepository($dataEventRepository);
+
+        $email = (new TemplatedEmail())
+            ->from($dataContact->getEmail())
             ->to('yodddu@example.com')
             //->cc('cc@example.com')
             //->bcc('bcc@example.com')
             //->replyTo('fabien@example.com')
             //->priority(Email::PRIORITY_HIGH)
             ->subject('Une exception a été relevé')
-            ->html('<p>dddd</p>');
+            ->htmlTemplate('contact/contact.html.twig')
+            ->context([
+                'dataContact' => $dataContact,
+                'dataEventRepository' => $dataEventRepository
+            ]);
 
         $this->mailer->send($email);
     }

@@ -8,6 +8,7 @@ use App\Entity\User as EntityUser;
 use App\Form\ContactType;
 use App\Form\RepoSearchType;
 use App\Event\GithubRepositoryEvent;
+use App\Notification\ContactNotification;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\GithubRepositoryProvider;
@@ -38,12 +39,15 @@ class DashboardController extends AbstractController
      */
     public function index(HttpClientInterface $httpClient, Request $request, Security $security)
     {
+        //Les repositories du user
         $response = $httpClient->request('GET', 'https://api.github.com/users/'. $security->getUser()->getUsername() .'/repos', [
             'query' => [
                 'sort' => 'created',
             ],
         ]);
 
+        //Formulaire de recherche repository
+        //TODO
         $form = $this->createForm(RepoSearchType::class);
         $form = $form->handleRequest($request);
 
@@ -63,20 +67,38 @@ class DashboardController extends AbstractController
      */
     public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
     {
-        /*$event = new GithubRepositoryEvent($githubRepositoryProvider);
-        return $this->json($event->getData());*/
-        //$dispatcher->dispatch($event, GithubRepositoryEvent::NAME);
+        $request = Request::createFromGlobals();
+        $token = $request->cookies->get('token');
 
+        //Récupération de l'objet user du namespace entity dans la bdd
         $userBdd = $this->getDoctrine()->getRepository(EntityUser::class)->findOneByUsername($security->getUser()->getUsername());
+        $contactByUserIdBdd = $this->getDoctrine()->getRepository(Contact::class)->findOneByUser($userBdd->getId());
 
-        $response = $httpClient->request('GET', 'https://api.github.com/repositories/' . $id);
-        $commit = $httpClient->request('GET', 'https://api.github.com/repos/'.$response->toArray()['full_name'].'/commits');
-        $lastChange = $httpClient->request('GET', 'https://api.github.com/repos/' . $response->toArray()['full_name'] . '/events');
 
+        //Le repository spécifique à $id
+        $response = $httpClient->request('GET', 'https://api.github.com/repositories/' . $id, [
+            'headers' => [
+                'Authorization' => "token " . $token
+            ]
+        ]);
 
         if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException(sprintf('No repository with id %s', $id));
         }
+
+        //Les derniers commits éffectués
+        $commit = $httpClient->request('GET', 'https://api.github.com/repos/'.$response->toArray()['full_name'].'/commits', [
+            'headers' => [
+                'Authorization' => "token " . $token
+            ]
+        ]);
+
+        //Les derniers évenement du repository
+        $lastChange = $httpClient->request('GET', 'https://api.github.com/repos/' . $response->toArray()['full_name'] . '/events', [
+            'headers' => [
+                'Authorization' => "token " . $token
+            ]
+        ]);
 
         //Création de formulaire email notification
         $contact = new Contact();
@@ -89,16 +111,16 @@ class DashboardController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             
             $this->manager->persist($contact);
-            $this->manager->flush($contact);
+            $this->manager->flush($contact);       
 
-            $this->addFlash('success', 'Email enregistré');
-
-            $test = new Contact();
-            $event = new GithubRepositoryEvent($test);
+            //Déclanche l'evenement
+            $event = new GithubRepositoryEvent($contact, $lastChange->toArray());
 
             if ($this->eventDispatcher) {
                 $this->eventDispatcher->dispatch($event, GithubRepositoryEvent::NAME);
             }
+
+            $this->addFlash('success', 'Email enregistré');
 
             return $this->redirectToRoute('dashboard_show', [
                 'id' => $id

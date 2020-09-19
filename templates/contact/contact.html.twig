@@ -1,1 +1,20 @@
-<h1>Email envoyé !</h1>
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+<div class="example-wrapper">
+    <h3>Last change event for your repository : {{ dataContact.repository }}</h3>
+
+    <ul>
+        {% for lastEvent in dataEventRepository %}
+            <li>Type : {{lastEvent.type}}</li>
+            <li>Auteur : {{ lastEvent.actor.login }}</li>
+            <li>Créer le : {{ lastEvent.created_at|date("d/m/Y H:i:s", "Europe/Paris") }}</li>
+            <hr>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
