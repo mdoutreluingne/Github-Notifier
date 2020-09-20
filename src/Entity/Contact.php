@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\ContactRepository;
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ContactRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -35,6 +36,12 @@ class Contact
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * 
+     */
+    private $notify = false;
 
     public function getId(): ?int
     {
@@ -73,6 +80,18 @@ class Contact
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getNotify(): ?bool
+    {
+        return $this->notify;
+    }
+
+    public function setNotify(bool $notify): self
+    {
+        $this->notify = $notify;
 
         return $this;
     }

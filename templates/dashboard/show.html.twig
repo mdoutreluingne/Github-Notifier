@@ -12,7 +12,13 @@
                         <div class="alert alert-success text-center">
                             {{message}}
                         </div>
-                    {% endfor %}
+                {% endfor %}
+
+                {% for message in app.flashes('danger') %}
+                        <div class="alert alert-danger text-center">
+                            {{message}}
+                        </div>
+                {% endfor %}
 
                 {% if not form.vars.valid%}
                     <div class="alert alter-danger text-center">

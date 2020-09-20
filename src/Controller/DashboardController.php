@@ -72,6 +72,7 @@ class DashboardController extends AbstractController
 
         //Récupération de l'objet user du namespace entity dans la bdd
         $userBdd = $this->getDoctrine()->getRepository(EntityUser::class)->findOneByUsername($security->getUser()->getUsername());
+        //Récupération de la table contact en fonction de son user
         $contactByUserIdBdd = $this->getDoctrine()->getRepository(Contact::class)->findOneByUser($userBdd->getId());
 
 
@@ -108,27 +109,51 @@ class DashboardController extends AbstractController
         $form = $this->createForm(ContactType::class, $contact);
         $form->handleRequest($request);
 
+        
+
         if ($form->isSubmitted() && $form->isValid()) {
-            
-            $this->manager->persist($contact);
-            $this->manager->flush($contact);       
 
-            //Déclanche l'evenement
-            $event = new GithubRepositoryEvent($contact, $lastChange->toArray());
+            if ($contactByUserIdBdd != null) {
+                //Test si un élément éxiste déjà dans la table contact
+                if ($contactByUserIdBdd->getRepository() == $contact->getRepository() && $contactByUserIdBdd->getUser() == $contact->getUser()) {
 
-            if ($this->eventDispatcher) {
-                $this->eventDispatcher->dispatch($event, GithubRepositoryEvent::NAME);
+                    $this->addFlash('danger', 'Email déjà enregistré pour ce repository');
+                    return $this->redirectToRoute('dashboard_show', [
+                        'id' => $id
+                    ]);
+                }
             }
 
+            //Ajout dans la bdd
+            $this->manager->persist($contact);
+            $this->manager->flush($contact);
+
             $this->addFlash('success', 'Email enregistré');
+            
 
             return $this->redirectToRoute('dashboard_show', [
                 'id' => $id
             ]);
         }
 
-        
-        
+        //Si la case notifié a été cocher
+        if ($contactByUserIdBdd != null && $contactByUserIdBdd->getNotify() == 1) {
+            
+            $contactBdd = new Contact();
+            $contactBdd->setEmail($contactByUserIdBdd->getEmail());
+            $contactBdd->setRepository($contactByUserIdBdd->getRepository());
+            $contactBdd->setUser($contactByUserIdBdd->getUser());
+            $contactBdd->setNotify($contactByUserIdBdd->getNotify());
+            
+            //Déclanche l'evenement
+            $event = new GithubRepositoryEvent($contactBdd, $lastChange->toArray());
+
+            if ($this->eventDispatcher) {
+                $this->eventDispatcher->dispatch($event, GithubRepositoryEvent::NAME);
+            }
+        }
+
+         
         return $this->render('dashboard/show.html.twig', [
             'repo' => $response->toArray(),
             'commits' => $commit->toArray(),
