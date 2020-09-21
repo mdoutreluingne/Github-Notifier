@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Repository\ContactRepository;
+use App\Service\MailerService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -20,7 +21,7 @@ class CallApiGithubCommand extends Command
     private $contactRepo;
     private $mailer;
 
-    public function __construct(HttpClientInterface $httpClient, ContactRepository $contactRepo, MailerInterface $mailer)
+    public function __construct(HttpClientInterface $httpClient, ContactRepository $contactRepo, MailerService $mailer)
     {
         $this->httpClient = $httpClient;
         $this->contactRepo = $contactRepo;
@@ -38,7 +39,6 @@ class CallApiGithubCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         //Récupération de la table contact
         $contactByUserIdBdd = $this->contactRepo->findAll();
 
@@ -47,17 +47,11 @@ class CallApiGithubCommand extends Command
             //Les derniers évenement du repository
             $lastChange = $this->httpClient->request('GET', 'https://api.github.com/repos/' . $contact->getUser()->getUsername() . '/' . $contact->getRepository() . '/events');
 
-            $email = (new TemplatedEmail())
-                ->from($contact->getEmail())
-                ->to('noreplay@gmail.com')
-                ->subject('Une exception a été relevé')
-                ->htmlTemplate('contact/contact.html.twig')
-                ->context([
-                    'contact' => $contact,
-                    'dataEventRepository' => $lastChange->toArray()
-                ]);
 
-            $this->mailer->send($email);
+            $this->mailer->send($contact->getEmail(), 'noreplay@gmail.com', 'Une exception a été relevé', 'contact/contact.html.twig', [
+                'contact' => $contact,
+                'dataEventRepository' => $lastChange->toArray()
+            ]);
         }
 
         return 0;

@@ -36,4 +36,13 @@ class LoginController extends AbstractController
         return new RedirectResponse("https://github.com/login/oauth/authorize?client_id=$this->githubId&redirect_uri=".$url);
     }
 
+    /**
+     * @Route("/logout", name="logout", methods={"GET"})
+     */
+    public function logout()
+    {
+        // controller can be blank: it will never be executed!
+        throw new \Exception('Une erreur est survenue, veuillez actualiser');
+    }
+
 }

@@ -2,16 +2,13 @@
 
 namespace App\Controller;
 
-use App\Security\User;
 use App\Entity\Contact;
-use App\Entity\User as EntityUser;
 use App\Form\ContactType;
-use App\Form\RepoSearchType;
-use App\Event\GithubRepositoryEvent;
-use App\Notification\ContactNotification;
-use App\Repository\UserRepository;
+use App\Form\RepositorySearchType;
+use App\Entity\RepositorySearch;
+use App\Entity\User as EntityUser;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\GithubRepositoryProvider;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,27 +34,50 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard", name="dashboard")
      */
-    public function index(HttpClientInterface $httpClient, Request $request, Security $security)
+    public function index(HttpClientInterface $httpClient, Request $request, Security $security, PaginatorInterface $paginator)
     {
+        $request = Request::createFromGlobals();
+        $token = $request->cookies->get('token'); //Récuperation du cookie
+
         //Les repositories du user
-        $response = $httpClient->request('GET', 'https://api.github.com/users/'. $security->getUser()->getUsername() .'/repos', [
+        $response = $httpClient->request('GET', 'https://api.github.com/user/repos', [
             'query' => [
                 'sort' => 'created',
             ],
+            'headers' => [
+                'Authorization' => "token " . $token
+            ]
         ]);
 
         //Formulaire de recherche repository
-        //TODO
-        $form = $this->createForm(RepoSearchType::class);
+        $search = new RepositorySearch();
+        $form = $this->createForm(RepositorySearchType::class, $search);
         $form = $form->handleRequest($request);
 
-        /*if ($form->isSubmitted() && $form->isValid()) { 
-            
-        }*/
+        if ($form->isSubmitted() && $form->isValid()) {
+            //Les repositories du user
+            $searchRepository = $httpClient->request('GET', 'https://api.github.com/repos/' .$security->getUser()->getUsername(). '/' . $search->getSearch(), [
+                'headers' => [
+                    'Authorization' => "token " . $token
+                ]
+            ]);
+
+            return $this->redirectToRoute('dashboard_show', [
+                'id' => $searchRepository->toArray()['id']
+            ]);
+        }
+
+
+        $repositories = $paginator->paginate(
+            $response->toArray(),
+            $request->query->getInt('page', 1),
+            5
+        );
+
 
         return $this->render('dashboard/index.html.twig', [
-            'repos' => $response->toArray(),
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'repositories' => $repositories
         ]);
 
     }
@@ -126,7 +146,6 @@ class DashboardController extends AbstractController
                     }
                 }
             }
-
 
             //Ajout dans la bdd
             $this->manager->persist($contact);
