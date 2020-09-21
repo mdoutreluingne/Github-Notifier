@@ -5,14 +5,16 @@ namespace App\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class RepositorySearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('search', null, [
-                'label' => 'Recherche un repository'
+            ->add('search', TextType::class, [
+                'label' => 'Recherche un repository',
+                'attr' => ['list' => 'repositories']
             ])
         ;
     }
@@ -25,8 +27,4 @@ class RepositorySearchType extends AbstractType
         ]);
     }
 
-    public function getBlockPrefix()
-    {
-        return '';
-    }
 }

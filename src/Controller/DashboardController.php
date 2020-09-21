@@ -68,16 +68,17 @@ class DashboardController extends AbstractController
         }
 
 
+        //Pagination
         $repositories = $paginator->paginate(
             $response->toArray(),
             $request->query->getInt('page', 1),
             5
         );
 
-
         return $this->render('dashboard/index.html.twig', [
             'form' => $form->createView(),
-            'repositories' => $repositories
+            'repositories' => $repositories,
+            'AllRepository' => $response->toArray()
         ]);
 
     }
