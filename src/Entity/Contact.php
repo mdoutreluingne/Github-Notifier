@@ -37,11 +37,6 @@ class Contact
      */
     private $user;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * 
-     */
-    private $notify = false;
 
     public function getId(): ?int
     {
@@ -84,15 +79,4 @@ class Contact
         return $this;
     }
 
-    public function getNotify(): ?bool
-    {
-        return $this->notify;
-    }
-
-    public function setNotify(bool $notify): self
-    {
-        $this->notify = $notify;
-
-        return $this;
-    }
 }

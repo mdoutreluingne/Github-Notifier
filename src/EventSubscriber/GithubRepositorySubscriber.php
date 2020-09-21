@@ -20,11 +20,11 @@ class GithubRepositorySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GithubRepositoryEvent::NAME => 'onFilterApi',
+            GithubRepositoryEvent::NAME => 'SendLastEventRepository',
         ];
     }
 
-    public function onFilterApi(GithubRepositoryEvent $event)
+    public function SendLastEventRepository(GithubRepositoryEvent $event)
     {
         //Récupération de l'oject contact
         $dataContact = $event->getContact();

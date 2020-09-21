@@ -9,11 +9,24 @@ class DbProcessor
     private $request;
     private $security;
 
+    /**
+     * Construcut
+     *
+     * @param RequestStack $request
+     * @param Security $security
+     */
     public function __construct(RequestStack $request, Security $security)
     {
         $this->request = $request->getCurrentRequest();
         $this->security = $security;
     }
+
+    /**
+     * Undocumented function
+     *
+     * @param array $record
+     * @return array
+     */
     public function __invoke(array $record)
     {
         //On modifie le record pour ajouter nos infos

@@ -68,12 +68,12 @@ class DashboardController extends AbstractController
     public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
     {
         $request = Request::createFromGlobals();
-        $token = $request->cookies->get('token');
+        $token = $request->cookies->get('token'); //Récuperation du cookie
 
         //Récupération de l'objet user du namespace entity dans la bdd
         $userBdd = $this->getDoctrine()->getRepository(EntityUser::class)->findOneByUsername($security->getUser()->getUsername());
         //Récupération de la table contact en fonction de son user
-        $contactByUserIdBdd = $this->getDoctrine()->getRepository(Contact::class)->findOneByUser($userBdd->getId());
+        $contactByUserIdBdd = $this->getDoctrine()->getRepository(Contact::class)->findByUser($userBdd->getId());
 
 
         //Le repository spécifique à $id
@@ -109,20 +109,24 @@ class DashboardController extends AbstractController
         $form = $this->createForm(ContactType::class, $contact);
         $form->handleRequest($request);
 
-        
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             if ($contactByUserIdBdd != null) {
-                //Test si un élément éxiste déjà dans la table contact
-                if ($contactByUserIdBdd->getRepository() == $contact->getRepository() && $contactByUserIdBdd->getUser() == $contact->getUser()) {
+                
+                //Parcourt le tableau de contact
+                foreach ($contactByUserIdBdd as $contactUser) {
+                    //Test si un élément éxiste déjà dans la table contact
+                    if ($contactUser->getEmail() == $contact->getEmail()) {
 
-                    $this->addFlash('danger', 'Email déjà enregistré pour ce repository');
-                    return $this->redirectToRoute('dashboard_show', [
-                        'id' => $id
-                    ]);
+                        $this->addFlash('danger', 'Email déjà enregistré pour ce repository');
+
+                        return $this->redirectToRoute('dashboard_show', [
+                            'id' => $id
+                        ]);
+                    }
                 }
             }
+
 
             //Ajout dans la bdd
             $this->manager->persist($contact);
@@ -130,20 +134,17 @@ class DashboardController extends AbstractController
 
             $this->addFlash('success', 'Email enregistré');
             
-
             return $this->redirectToRoute('dashboard_show', [
                 'id' => $id
             ]);
         }
 
-        //Si la case notifié a été cocher
-        if ($contactByUserIdBdd != null && $contactByUserIdBdd->getNotify() == 1) {
+        /*if ($contactByUserIdBdd != null) {
             
             $contactBdd = new Contact();
             $contactBdd->setEmail($contactByUserIdBdd->getEmail());
             $contactBdd->setRepository($contactByUserIdBdd->getRepository());
             $contactBdd->setUser($contactByUserIdBdd->getUser());
-            $contactBdd->setNotify($contactByUserIdBdd->getNotify());
             
             //Déclanche l'evenement
             $event = new GithubRepositoryEvent($contactBdd, $lastChange->toArray());
@@ -151,7 +152,7 @@ class DashboardController extends AbstractController
             if ($this->eventDispatcher) {
                 $this->eventDispatcher->dispatch($event, GithubRepositoryEvent::NAME);
             }
-        }
+        }*/
 
          
         return $this->render('dashboard/show.html.twig', [
