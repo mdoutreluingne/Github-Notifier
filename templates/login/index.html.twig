@@ -1,15 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello LoginController!{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>Oauth app!</h1>
-    <a href="{{ path('github') }}">Connect via github</a>
-</div>
+<header>
+    <div class="wrapper">
+        <div class="content">
+            <h1 class="home_title">Login</h1>
+            <a class="button button--social-login button--github" href="{{ path('github') }}"><i class="icon fab fa-github"></i>Login With Github</a>
+        </div>
+    </div>
+</header>
 {% endblock %}

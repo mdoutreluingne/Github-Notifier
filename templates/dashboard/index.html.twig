@@ -1,15 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ApiController!{% endblock %}
+{% block title %}My account{% endblock %}
 
 {% block body %}
 
 <div class="example-wrapper">
-    <h1>My repositories</h1>
+    
 
     <div class="jumbotron">
+        
         <h1>Welcome {{ app.user.username }}</h1>
-        <img src="{{ app.user.avatar }}" alt="">
+        
         <div class="container">
             {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                 {{ form_widget(form) }}
@@ -24,6 +25,7 @@
         </div>
     </div>
 
+    <h1>My repositories</h1>
     <ul>    
         {% for repo in repositories %}
             <li>Name : {{repo.name}}</li>

@@ -40,7 +40,7 @@ class DashboardController extends AbstractController
         $token = $request->cookies->get('token'); //Récuperation du cookie
 
         //Les repositories du user
-        $response = $httpClient->request('GET', 'https://api.github.com/user/repos', [
+        $response = $httpClient->request('GET', 'https://api.github.com/users/'.$security->getUser()->getUsername().'/repos', [
             'query' => [
                 'sort' => 'created',
             ],
