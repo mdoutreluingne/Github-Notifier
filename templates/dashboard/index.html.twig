@@ -4,39 +4,44 @@
 
 {% block body %}
 
-<div class="example-wrapper">
-    
-
+<div class="dashoard">
     <div class="jumbotron">
-        
-        <h1>Welcome {{ app.user.username }}</h1>
-        
+        <h1 class="dashboard_title text-center">Welcome {{ app.user.username }}</h1> 
         <div class="container">
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                {{ form_widget(form) }}
-                <datalist id="repositories">
-                    {% for EachRepository in AllRepository %}
-                        <option value="{{ EachRepository.name }}">
-                    {% endfor %}
-                </datalist>
-                {{ form_rest(form) }}
-                <button class="btn btn-primary">Rechercher</button>
-            {{ form_end(form) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'text-center'} }) }}    
+            <div class="form-row align-items-end">
+                <div class="col">
+                    {{ form_row(form, { 'label' : 'Search your repository' }) }}
+                    <datalist id="repositories">
+                        {% for EachRepository in AllRepository %}
+                            <option value="{{ EachRepository.name }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <button class="btn btn-primary">Rechercher</button>
+                    </div>
+                </div>
+                {{ form_end(form) }}
+            </div>
         </div>
     </div>
 
-    <h1>My repositories</h1>
-    <ul>    
-        {% for repo in repositories %}
-            <li>Name : {{repo.name}}</li>
-            <li>Description : {{repo.description ?? 'No description'}}</li>
-            <li><a href="{{ path('dashboard_show', {id:repo.id}) }}">Détails</a> || <a href="https://github.com/{{ app.user.username }}/{{repo.name}}">Voir sur github</a></li>
-            <br>
-        {% endfor %}
-    </ul>
+    <div class="container-fluid">
+        <h1 class="text-white text-center">My repositories</h1>
+        <ul class="repository">    
+            {% for repo in repositories %}
+                <li>Name : {{repo.name}}</li>
+                <li>Description : {{repo.description ?? 'No description'}}</li>
+                <li><a href="{{ path('dashboard_show', {id:repo.id}) }}">Détails</a> || <a href="https://github.com/{{ app.user.username }}/{{repo.name}}">Voir sur github</a></li>
+                <hr>
+            {% endfor %}
+        </ul>
 
-    <div class="pagination">
-			{{ knp_pagination_render(repositories) }}
-		</div>
+        <div class="pagination justify-content-center">
+                {{ knp_pagination_render(repositories) }}
+        </div>
+    </div>
 </div>
 {% endblock %}

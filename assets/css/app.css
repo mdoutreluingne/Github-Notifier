@@ -13,6 +13,10 @@ header {
     background-size: cover;
 }
 
+hr {
+  background-color: #8e44ad;
+}
+
 /*HOME*/
 .wrapper {
    display: table;
@@ -111,13 +115,72 @@ header {
   background-color: #262626;
 }
 
+.dashoard {
+  margin-bottom: 5%;
+}
+
 /*DASHBOARD INDEX*/
 .jumbotron {
-    background-color: #2c3e50;
+    background-color: #1e272e;
 }
 
 .nav-link img {
     max-height: 40px;
     width: 40px;
     margin: 0 5px;
+}
+
+.dashboard_title {
+    color: #8e44ad;
+    font-size: 45px;
+    letter-spacing: 1px;
+}
+
+form {
+  margin-left: 30% !important;
+  padding-top: 2%;
+}
+
+.col-form-label {
+  color: #8e44ad;
+  letter-spacing: 2px;
+}
+
+.repository {
+  text-align: center;
+  color: white;
+  padding-top: 3%;
+  list-style-type: none;
+}
+
+.pagination {
+  padding-top: 3%;
+}
+
+/*DASHBOARD SHOW*/
+
+.scroll {
+  max-height: 700px;
+  overflow: auto;
+}
+
+.repo_title {
+  text-align: center;
+}
+
+.repo_title h1 {
+  letter-spacing: 1px;
+  font-size: 55px;
+  margin-bottom: 5%;
+  color: #8e44ad;
+}
+
+.repo_title p {
+  color: white;
+}
+
+.subtitle_repo {
+  color: white;
+  letter-spacing: 1px;
+  margin-bottom: 10%;
 }

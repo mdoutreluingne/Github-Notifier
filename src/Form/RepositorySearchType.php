@@ -13,7 +13,7 @@ class RepositorySearchType extends AbstractType
     {
         $builder
             ->add('search', TextType::class, [
-                'label' => 'Recherche un repository',
+                'label' => false,
                 'attr' => ['list' => 'repositories']
             ])
         ;
