@@ -58,8 +58,8 @@ class GithubUserProvider
             //Création du cookie
             $res = new Response();
             $cookie = Cookie::create('token')
-            ->withValue($response->toArray()['access_token'])
-            ->withExpires(strtotime("+7 hours"));
+                ->withValue($response->toArray()['access_token'])
+                ->withExpires(strtotime("+7 hours"));
 
             $res->headers->setCookie($cookie);
             $res->send();
@@ -68,9 +68,9 @@ class GithubUserProvider
         //Appelle l'api avec $token
         $response = $this->httpClient->request('GET', 'https://api.github.com/user', [
             'headers' => [
-                'Authorization' => "token ". $token
+                'Authorization' => "token " . $token
             ]
-        ]);
+        ]); 
 
         $data = $response->toArray();
         $userBdd = $this->repository->findOneByUsername($data['login']);

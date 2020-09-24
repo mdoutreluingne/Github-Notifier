@@ -43,7 +43,7 @@ class DashboardController extends AbstractController
         $response = $httpClient->request('GET', 'https://api.github.com/users/'.$security->getUser()->getUsername().'/repos', [
             'query' => [
                 'sort' => 'created',
-            ]
+            ],
         ]);
 
         //Formulaire de recherche repository
