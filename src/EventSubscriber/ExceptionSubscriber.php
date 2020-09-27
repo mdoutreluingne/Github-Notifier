@@ -35,9 +35,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
     public function processException(ExceptionEvent $event)
     {
-        /*$exception = $event->getThrowable();
-
-        $response = new Response();
+        $exception = $event->getThrowable();
 
         // HttpExceptionInterface is a special type of exception that
         // holds status code and header details
@@ -53,7 +51,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
             }
         } else {
             $this->logger->info($exception->getMessage());
-        }*/
+        }
     }
 
     public function notifyException(ExceptionEvent $event)
@@ -66,7 +64,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
             //->replyTo('fabien@example.com')
             //->priority(Email::PRIORITY_HIGH)
             ->subject('Une exception a été relevé')
-            ->html('<p>'.$event->getThrowable()->getMessage().' avec une erreur ' .$event->getThrowable()->getStatusCode(). '</p>');
+            ->html('<p>'.$event->getThrowable()->getMessage().' avec une erreur </p>');
 
         $this->mailer->send($email);*/
     }

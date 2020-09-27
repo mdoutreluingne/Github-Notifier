@@ -14,7 +14,7 @@ class MailerService
     }
 
     /**
-     * Undocumented function
+     * Send email
      *
      * @param string $from
      * @param string $to

@@ -37,11 +37,12 @@
                 <li><a href="{{ path('dashboard_show', {id:repo.id}) }}">Détails</a> || <a href="https://github.com/{{ app.user.username }}/{{repo.name}}">Voir sur github</a></li>
                 <hr>
             {% endfor %}
+            <div class="pagination justify-content-center">
+                {{ knp_pagination_render(repositories) }}
+            </div>
         </ul>
 
-        <div class="pagination justify-content-center">
-                {{ knp_pagination_render(repositories) }}
-        </div>
+        
     </div>
 </div>
 {% endblock %}

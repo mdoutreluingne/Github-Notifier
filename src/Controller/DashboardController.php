@@ -2,15 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Commit;
 use App\Entity\Contact;
 use App\Form\ContactType;
-use App\Form\RepositorySearchType;
 use App\Entity\RepositorySearch;
 use App\Entity\User as EntityUser;
+use App\Form\RepositorySearchType;
+use App\Event\GithubRepositoryEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Security;
 
 class DashboardController extends AbstractController
 {
@@ -34,13 +36,13 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard", name="dashboard")
      */
-    public function index(HttpClientInterface $httpClient, Request $request, Security $security, PaginatorInterface $paginator)
+    public function index(HttpClientInterface $httpClient, Request $request, PaginatorInterface $paginator)
     {
         $request = Request::createFromGlobals();
         $token = $request->cookies->get('token'); //Récuperation du cookie
 
         //Les repositories du user
-        $response = $httpClient->request('GET', 'https://api.github.com/users/'.$security->getUser()->getUsername().'/repos', [
+        $response = $httpClient->request('GET', 'https://api.github.com/users/'.$this->getUser()->getUsername().'/repos', [
             'query' => [
                 'sort' => 'created',
             ],
@@ -53,7 +55,7 @@ class DashboardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             //Les repositories du user
-            $searchRepository = $httpClient->request('GET', 'https://api.github.com/repos/' .$security->getUser()->getUsername(). '/' . $search->getSearch(), [
+            $searchRepository = $httpClient->request('GET', 'https://api.github.com/repos/' .$this->getUser()->getUsername(). '/' . $search->getSearch(), [
                 'headers' => [
                     'Authorization' => "token " . $token
                 ]
@@ -63,7 +65,6 @@ class DashboardController extends AbstractController
                 'id' => $searchRepository->toArray()['id']
             ]);
         }
-
 
         //Pagination
         $repositories = $paginator->paginate(
@@ -83,13 +84,13 @@ class DashboardController extends AbstractController
     /**
      * @Route("/dashboard/show/{id}", name="dashboard_show")
      */
-    public function show($id, HttpClientInterface $httpClient, Request $request, Security $security)
+    public function show($id, HttpClientInterface $httpClient, Request $request)
     {
         $request = Request::createFromGlobals();
         $token = $request->cookies->get('token'); //Récuperation du cookie
 
         //Récupération de l'objet user du namespace entity dans la bdd
-        $userBdd = $this->getDoctrine()->getRepository(EntityUser::class)->findOneByUsername($security->getUser()->getUsername());
+        $userBdd = $this->getDoctrine()->getRepository(EntityUser::class)->findOneByUsername($this->getUser()->getUsername());
         //Récupération de la table contact en fonction de son user
         $contactByUserIdBdd = $this->getDoctrine()->getRepository(Contact::class)->findByUser($userBdd->getId());
 
@@ -118,6 +119,7 @@ class DashboardController extends AbstractController
                 'Authorization' => "token " . $token
             ]
         ]);
+
 
         //Création de formulaire email notification
         $contact = new Contact();

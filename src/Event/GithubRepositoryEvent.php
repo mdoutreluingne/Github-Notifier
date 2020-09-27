@@ -2,7 +2,7 @@
 
 namespace App\Event;
 
-use App\Entity\Contact;
+use App\Entity\User;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -11,55 +11,32 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class GithubRepositoryEvent extends Event
 {
-    public const NAME = 'repository.event';
+    public const NAME = 'app.register';
 
-    private $contact;
-    private $lastEventRepository;
+    private $user;
 
-    public function __construct(Contact $contact, array $lastEventRepository)
+    public function __construct(User $user)
     {
-        $this->contact = $contact;
-        $this->lastEventRepository = $lastEventRepository;
+        $this->user = $user;
     }
 
 
     /**
-     * Get the value of contact
+     * Get the value of user
      */ 
-    public function getContact()
+    public function getUser()
     {
-        return $this->contact;
+        return $this->user;
     }
 
     /**
-     * Set the value of contact
+     * Set the value of user
      *
      * @return  self
      */ 
-    public function setContact($contact)
+    public function setUser($user)
     {
-        $this->contact = $contact;
-
-        return $this;
-    }
-
-
-    /**
-     * Get the value of lastEventRepository
-     */ 
-    public function getLastEventRepository()
-    {
-        return $this->lastEventRepository;
-    }
-
-    /**
-     * Set the value of lastEventRepository
-     *
-     * @return  self
-     */ 
-    public function setLastEventRepository($lastEventRepository)
-    {
-        $this->lastEventRepository = $lastEventRepository;
+        $this->user = $user;
 
         return $this;
     }

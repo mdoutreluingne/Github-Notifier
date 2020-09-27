@@ -4,12 +4,14 @@ namespace App\Service;
 use App\Security\User;
 use App\Entity\User as EntityUser;
 use App\Repository\UserRepository;
+use App\Event\GithubRepositoryEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class GithubUserProvider
 {
@@ -18,14 +20,16 @@ class GithubUserProvider
     private $httpClient;
     private $em;
     private $repository;
+    private $eventDispatcher;
 
-    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, EntityManagerInterface $em, UserRepository $repository)
+    public function __construct($githubId, $githubSecret, HttpClientInterface $httpClient, EntityManagerInterface $em, UserRepository $repository, EventDispatcherInterface $eventDispatcher = null)
     {
         $this->githubId = $githubId;
         $this->githubSecret = $githubSecret;
         $this->httpClient = $httpClient;
         $this->em = $em;
         $this->repository = $repository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function loadUserFromGithub(string $code)
@@ -65,6 +69,7 @@ class GithubUserProvider
             $res->send();
         }
 
+
         //Appelle l'api avec $token
         $response = $this->httpClient->request('GET', 'https://api.github.com/user', [
             'headers' => [
@@ -83,6 +88,7 @@ class GithubUserProvider
 
             $this->em->persist($user);
             $this->em->flush($user);
+ 
         }
         
         return new User($data);

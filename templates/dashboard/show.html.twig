@@ -52,7 +52,8 @@
                 <div class="scroll text-white">
                     {% for commit in commits %}
                         <p>Message : {{ commit.commit.message }}</p>
-                        <p>Committer : {{ commit.commit.committer.name }}</p>
+                        <p>Committer : {{ commit.committer.login }}</p>
+                        <p>Created at : {{ commit.commit.committer.date|date("d/m/Y H:i:s", "Europe/Paris") }}</p>
                         <hr>
                     {% endfor %}
                 </div> 
@@ -62,8 +63,8 @@
                 <div class="scroll text-white">
                     {% for lastChange in lastChanges %}
                         <p>Type : {{ lastChange.type }}</p>
-                        <p>Auteur : {{ lastChange.actor.login }}</p>
-                        <p>Créer le : {{ lastChange.created_at|date("d/m/Y H:i:s", "Europe/Paris") }}</p>
+                        <p>Author : {{ lastChange.actor.login }}</p>
+                        <p>Created at : {{ lastChange.created_at|date("d/m/Y H:i:s", "Europe/Paris") }}</p>
                         <hr>
                     {% endfor %}
                 </div>

@@ -1,8 +1,8 @@
 <?php 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class DbProcessor
 {
@@ -21,19 +21,12 @@ class DbProcessor
         $this->security = $security;
     }
 
-    /**
-     * Undocumented function
-     *
-     * @param array $record
-     * @return array
-     */
     public function __invoke(array $record)
     {
         //On modifie le record pour ajouter nos infos
         $record['extra']['clientIp'] = $this->request->getClientIp();
-        $record['extra']['url'] = $this->request->getBaseUrl();
-        $user = $this->security->getUser();
-        $record['extra']['user'] = $user->getUsername();
+        $record['extra']['url'] = $this->request->getBaseUrl();        
+        $record['extra']['user'] = $this->security->getUser();
 
         return $record;
     }
